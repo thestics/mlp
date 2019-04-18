@@ -19,16 +19,45 @@ imp = lambda a, b: int(not a or b)
 neg = lambda a: int(not a)
 
 
+
 class Formula:
+
+    __slots__ = ('str_val', 'operation', 'type', 'successors', 'is_complete')
 
     def __init__(self, content):
         self.str_val = content
+        self.is_complete = False
         self.operation = None
-        self.type = None
+        self.type = None    # var/formula
         self.successors = []
 
     def __str__(self):
         return self.str_val
+
+    def imp(self, f):
+        content = "({} -> {})".format(self.str_val, f.str_val)
+        new = Formula(content)
+        new.operation = "IMP"
+        new.successors = [self, f]
+        new.type = "formula"
+        new.is_complete = True
+        return new
+
+    def neg(self):
+        content = "(!{})".format(self.str_val)
+        new = Formula(content)
+        new.operation = "NOT"
+        new.successors = [self]
+        new.type = "formula"
+        new.is_complete = True
+        return new
+
+    # def parse_self(self, string):   # shame!
+    #     p = formula_parser.parse_formula(string).parse()
+    #     self.is_complete = True
+    #     self.operation = p.operation
+    #     self.type = p.type
+    #     self.successors = p.successors
 
     def get_var_name(self):
         if self.type == 'var':
