@@ -1,5 +1,5 @@
-from . import formula
-# import formula
+# from . import formula
+import formula
 
 
 Formula = formula.Formula
@@ -40,8 +40,8 @@ class parse_formula:
             elif string[i] == ')':
                 layer -= 1
             if i > 0 and layer == 1:
-                j1 = string.find("IMP", i, i + 6)    # )_IMP_ with/without spaces <= 6 chars, redundant spaces is to be removed
-                j2 = string.find("NOT", i, i + 6)
+                j1 = string.find("->", i, i + 4)    # )_IMP_ with/without spaces <= 6 chars, redundant spaces is to be removed
+                j2 = string.find("!", i, i + 3)
                 if j1 == -1 and j2 == -1:
                     return i, None  # simple variable
                 if j1 != -1:
@@ -86,14 +86,14 @@ class parse_formula:
 
 if __name__ == '__main__':
     # vals = {'x1': 0, 'x2': 0, 'x3': 1}
-    f1 = "((x1) IMP ((x2) IMP (x1)))"
+    f1 = "((x1) -> ((x2) -> (x1)))"
     f2 = "(((F) -> ((G) -> (H))) -> (((F) -> (G)) -> ((F) -> (H))))"
-    f2 = f2.replace('->', 'IMP')
-    f3 = "(((G) -> (!(F))) -> (((!(G)) -> (F)) -> (G)))"
-    f3 = f3.replace('!', 'NOT')
-    f3 = f3.replace('->', 'IMP')
+    # f2 = f2.replace('->', 'IMP')
+    f3 = "(((!(G)) -> (!(F))) -> (((!(G)) -> (F)) -> (G)))"
+    # f3 = f3.replace('!', 'NOT')
+    # f3 = f3.replace('->', 'IMP')
     # f2 = "(((F) IMP ((G) IMP (H)) IMP (((F) IMP (G)) IMP ((F) IMP (H))))"
-    p = parse_formula(f3).parse()
+    p = parse_formula(f1).parse()
     print(p.is_tautology())
     # p = parse_formula("((((NOT (x2)) IMP (x3)) IMP (x1)) IMP ((x1) IMP (x1)))").parse()
     # vals = {'x1': 1, 'x2': 1, 'x3': 0}
