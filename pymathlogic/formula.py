@@ -19,20 +19,26 @@ imp = lambda a, b: int(not a or b)
 neg = lambda a: int(not a)
 
 
-
 class Formula:
 
-    __slots__ = ('str_val', 'operation', 'type', 'successors', 'is_complete')
+    __slots__ = ('str_val', 'operation', 'type', 'successors', 'is_complete', 'is_axiom', 'derived_by_mp_from', 'axiom_num', 'seq_num')
 
     def __init__(self, content):
-        self.str_val = content
-        self.is_complete = False
-        self.operation = None
-        self.type = None    # var/formula
-        self.successors = []
+        self.str_val = content        # string representation of formula
+        self.is_complete = False      # is it totally packed?
+        self.is_axiom = False         # is it axiom                                                   --
+        self.axiom_num = None         # if it is, which form (A1-A3) it meets?                         |--stuff for more convenient implementation of deduction theorem
+        self.seq_num = -1            # number in inference sequence                                    |
+        self.derived_by_mp_from = []  # if we got this formula using Modus Ponens - from which exactly--
+        self.operation = None         # 'IMP' 'NOT' - main operation
+        self.type = None              # var/formula
+        self.successors = []          # sub-formulas
 
     def __str__(self):
         return self.str_val
+
+    def __repr__(self):
+        return str(self)
 
     def imp(self, f):
         content = "({} -> {})".format(self.str_val, f.str_val)
@@ -51,13 +57,6 @@ class Formula:
         new.type = "formula"
         new.is_complete = True
         return new
-
-    # def parse_self(self, string):   # shame!
-    #     p = formula_parser.parse_formula(string).parse()
-    #     self.is_complete = True
-    #     self.operation = p.operation
-    #     self.type = p.type
-    #     self.successors = p.successors
 
     def get_var_name(self):
         if self.type == 'var':
