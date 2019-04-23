@@ -1,9 +1,5 @@
-# from . import formula
-import formula
-
-
-Formula = formula.Formula
-
+from .formula import Formula
+import re
 
 class parse_formula:
 
@@ -12,7 +8,7 @@ class parse_formula:
         self._raw = string
         self._remove_extra_spaces()
 
-    def _remove_extra_spaces(self):     # attempt to make it more efficient than straightforward while true s.replace('  ', ' ')
+    def _remove_extra_spaces2(self):     # attempt to make it more efficient than straightforward while true s.replace('  ', ' ')
         cpy = ''
         space_layer = 0                 # amt of spaces already encountered
         last_char_parent = False
@@ -31,6 +27,15 @@ class parse_formula:
             if c == ' ' and space_layer > 0:    # if at least one space was already added in a row -- skip
                 space_layer += 1
         self._raw = cpy
+
+    def _remove_extra_spaces(self):
+        self._raw = self._raw.strip()
+        p1 = ' +'
+        p2 = '\( +'
+        p3 = ' +\)'
+        self._raw = re.sub(p1, ' ', self._raw)
+        self._raw = re.sub(p2, '(', self._raw)
+        self._raw = re.sub(p3, ')', self._raw)
 
     def _find_main_operation(self, string):
         layer = 0
@@ -53,6 +58,7 @@ class parse_formula:
         cur = Formula(self._raw)
         self.root = cur
         self._parse(cur)
+        self.root.is_complete = True
         return self.root
 
     def _parse(self, cur_formula):
@@ -63,7 +69,7 @@ class parse_formula:
         elif token == "IMP":
             cur_formula.set_type("formula")
             cur_formula.set_operation("IMP")
-            left_str_val = cur_formula.str_val[1:i]           # avoid start '('
+            left_str_val = cur_formula.str_val[1:i - 1]           # avoid start '('
             right_start = cur_formula.str_val.find("(", i + 1)  # avoid inconsistency in spaces before and after operation
             right_str_val = cur_formula.str_val[right_start:-1]     # avoid end ')'
             left_form = Formula(left_str_val)

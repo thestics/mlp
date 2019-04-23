@@ -33,6 +33,7 @@ class Formula:
         self.operation = None         # 'IMP' 'NOT' - main operation
         self.type = None              # var/formula
         self.successors = []          # sub-formulas
+        # self.pow_alpha = None
 
     def __str__(self):
         return self.str_val
@@ -90,6 +91,18 @@ class Formula:
             elif self.operation == "NOT":
                 return self.successors[0].get_vars()
 
+    def get_vars_as_formulas(self):
+        data = self.get_vars()
+        hyp = []
+        temp = "({})"
+        for i, var in enumerate(data):
+            f = Formula(temp.format(var))
+            f.is_complete = True
+            f.type = 'var'
+            f.seq_num = i + 1
+            hyp.append(f)
+        return hyp
+
     def __call__(self, **kwargs):
         if self.type == 'var':
             vName = self.get_var_name()
@@ -102,6 +115,16 @@ class Formula:
             elif self.operation == "IMP":
                 left, right = self.successors
                 return imp(left(**kwargs), right(**kwargs))
+
+    def __eq__(self, other):
+        if isinstance(other, Formula):
+            return self.str_val == other.str_val
+
+    def pow_alpha(self, vector):
+        if self(**vector):
+            return self
+        else:
+            return self.neg()
 
     def is_tautology(self):
         var = tuple(sorted(self.get_vars()))
